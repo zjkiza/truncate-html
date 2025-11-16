@@ -1,0 +1,10 @@
+.php-cs-fixer.cache
+.phpunit.result.cache
+
+/.idea
+/var
+/build
+/vendor
+.env
+/bin/__pycache__/
+/bin/utility/__pycache__/
