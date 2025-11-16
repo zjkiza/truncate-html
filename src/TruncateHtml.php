@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace ZJKiza\TruncateHtml;
 
+use ZJKiza\TruncateHtml\Contract\TruncateInterface;
 use ZJKiza\TruncateHtml\Contract\TruncateStrategyInterface;
 use ZJKiza\TruncateHtml\Enum\TypeTag;
 
-final class TruncateHtml
+final class TruncateHtml implements TruncateInterface
 {
     /**
      * @var string[]
@@ -33,7 +34,8 @@ final class TruncateHtml
         );
     }
 
-    public function truncateHtml(string $html, int $limit = 950, string $enc = 'UTF-8'): string
+    #[\Override]
+    public function execute(string $html, int $limit = 950, string $enc = 'UTF-8'): string
     {
         $len = $this->strategy->length($html, $enc);
         if ($limit <= 0 || $html === '' || $len <= $limit) {
