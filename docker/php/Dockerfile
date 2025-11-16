@@ -71,6 +71,7 @@ RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 WORKDIR /www
 COPY --chown=${LOCAL_USER} . /www
+RUN git config --global --add safe.directory /www
 
 #   Holds a raised container
 
