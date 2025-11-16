@@ -43,7 +43,7 @@ final class TruncateHtml
         $openTags = [];
         $out = '';
         $used = 0;
-        $tokens = self::tokenize($html);
+        $tokens = $this->tokenize($html);
 
         if ($tokens === []) {
             return $this->strategy->cut($html, $limit, $enc);
@@ -65,7 +65,7 @@ final class TruncateHtml
                  * @var string $name
                  * @var bool $self
                  */
-                [$type, $name, $self] = self::parseTag($token, $this->defaultVoidTag);
+                [$type, $name, $self] = $this->parseTag($token, $this->defaultVoidTag);
 
 
                 if ($type === TypeTag::Open && !$self) {
@@ -148,20 +148,18 @@ final class TruncateHtml
     }
 
     /**
-     * @param string $html
      * @return string[]
      */
-    private static function tokenize(string $html): array
+    private function tokenize(string $html): array
     {
         return false !== \preg_match_all('/(<[^>]+>|[^<]+)/u', $html, $m) ? $m[0] : [];
     }
 
     /**
-     * @param string $raw
      * @param string[] $voidTags
      * @return array{TypeTag, string, bool}
      */
-    private static function parseTag(string $raw, array $voidTags): array
+    private function parseTag(string $raw, array $voidTags): array
     {
         $trimmed = \trim($raw);
 
