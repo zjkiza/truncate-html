@@ -13,7 +13,7 @@ A flexible PHP service to safely truncate HTML content **without breaking tag st
 - ✔️ Supports truncating by characters (multibyte safe)
 - ✔️ Custom void tags
 - ✔️ Simple API, PSR-4 autoload compatible
-- ✔️ PHP 8.0+, mbstring required
+- ✔️ PHP 8.1+, mbstring required
 
 ## Installation
 
