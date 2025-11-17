@@ -40,10 +40,10 @@ $html = '<div><p>Some rich <b>HTML</b> ...</p></div>';
 $truncate = new TruncateHtml();
 
 // --- Byte limit (precise control, for APIs/db):
-$resultByte = $truncate->execute($html, Strategy::Byte, 100);
+$resultByte = $truncate->execute($html, Strategy::Bytes, 100);
 
 // --- Character limit (supports multibyte chars!):
-$resultChar = $truncate->execute($html, Strategy::Character, 80);
+$resultChar = $truncate->execute($html, Strategy::Characters, 80);
 ```
 
 After truncation, the string remains a valid HTML fragment.
@@ -66,9 +66,9 @@ For byte/char limits, HTML tags remain valid:
 
 ---
 
-## Truncation Strategies (Strategije)
-- **Strategy::Byte**: Cuts by bytes. Use when you need strict byte limits (DB, APIs, etc).
-- **Strategy::Character**: Cuts by characters using mbstring (multi-byte safe, e.g., for Unicode strings).
+## Truncation Strategies
+- **Strategy::Bytes**: Cuts by bytes. Use when you need strict byte limits (DB, APIs, etc).
+- **Strategy::Characters**: Cuts by characters using mbstring (multi-byte safe, e.g., for Unicode strings).
 
 **Default encoding is UTF-8**, but can be overridden.
 

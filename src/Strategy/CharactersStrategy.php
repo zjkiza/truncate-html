@@ -21,6 +21,6 @@ final class CharactersStrategy implements TruncateStrategyInterface
 
     public function key(): Strategy
     {
-        return Strategy::Character;
+        return Strategy::Characters;
     }
 }

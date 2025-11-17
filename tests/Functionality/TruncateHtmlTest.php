@@ -19,7 +19,7 @@ final class TruncateHtmlTest extends TestCase
     public function testByteTruncate(int $limit, string $expected): void
     {
         $truncate = new TruncateHtml();
-        $result = $truncate->execute($this->getHtml(), Strategy::Byte, $limit);
+        $result = $truncate->execute($this->getHtml(), Strategy::Bytes, $limit);
 
         $this->assertLessThanOrEqual($limit, \strlen($result));
         $this->assertSame($expected, $result);
@@ -50,7 +50,7 @@ final class TruncateHtmlTest extends TestCase
     public function testStringTruncate(int $limit, string $expected): void
     {
         $truncate = new TruncateHtml();
-        $result = $truncate->execute($this->getHtml(), Strategy::Character, $limit);
+        $result = $truncate->execute($this->getHtml(), Strategy::Characters, $limit);
 
         $this->assertLessThanOrEqual($limit, \strlen($result));
         $this->assertSame($expected, $result);

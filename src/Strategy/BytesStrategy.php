@@ -21,6 +21,6 @@ final class BytesStrategy implements TruncateStrategyInterface
 
     public function key(): Strategy
     {
-        return Strategy::Byte;
+        return Strategy::Bytes;
     }
 }
