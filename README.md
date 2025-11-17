@@ -23,7 +23,7 @@ Install via [Composer](https://getcomposer.org/):
 composer require zjkiza/truncate-html
 ```
 
-> You need PHP 8.0+ and ext-mbstring enabled.
+> You need PHP 8.1+ and ext-mbstring enabled.
 
 ---
 
