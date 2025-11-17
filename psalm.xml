@@ -21,6 +21,7 @@
     <issueHandlers>
         <DeprecatedMethod errorLevel="info"/>
         <DeprecatedFunction errorLevel="info"/>
+        <MissingOverrideAttribute errorLevel="suppress"/>
     </issueHandlers>
 
     <plugins>

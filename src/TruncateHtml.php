@@ -6,7 +6,10 @@ namespace ZJKiza\TruncateHtml;
 
 use ZJKiza\TruncateHtml\Contract\TruncateInterface;
 use ZJKiza\TruncateHtml\Contract\TruncateStrategyInterface;
+use ZJKiza\TruncateHtml\Enum\Strategy;
 use ZJKiza\TruncateHtml\Enum\TypeTag;
+use ZJKiza\TruncateHtml\Strategy\ByteStrategy;
+use ZJKiza\TruncateHtml\Strategy\StringStrategy;
 
 final class TruncateHtml implements TruncateInterface
 {
@@ -18,12 +21,21 @@ final class TruncateHtml implements TruncateInterface
     ];
 
     /**
+     * @var array<string, TruncateStrategyInterface>
+     */
+    private array $strategy = [];
+
+    /**
      * @param string[] $voidTag
      */
     public function __construct(
-        private readonly TruncateStrategyInterface $strategy,
-        array                              $voidTag = []
+        array $voidTag = []
     ) {
+
+        $this
+            ->addStrategy(new ByteStrategy())
+            ->addStrategy(new StringStrategy());
+
         if (false === (bool)$voidTag) {
             return;
         }
@@ -34,10 +46,11 @@ final class TruncateHtml implements TruncateInterface
         );
     }
 
-    #[\Override]
-    public function execute(string $html, int $limit = 950, string $enc = 'UTF-8'): string
+    public function execute(string $html, Strategy $strategy, int $limit = 950, string $enc = 'UTF-8'): string
     {
-        $len = $this->strategy->length($html, $enc);
+        $strategyAction = $this->strategy[$strategy->value];
+
+        $len = $strategyAction->length($html, $enc);
         if ($limit <= 0 || $html === '' || $len <= $limit) {
             return $len <= $limit ? $html : '';
         }
@@ -48,14 +61,14 @@ final class TruncateHtml implements TruncateInterface
         $tokens = $this->tokenize($html);
 
         if ($tokens === []) {
-            return $this->strategy->cut($html, $limit, $enc);
+            return $strategyAction->cut($html, $limit, $enc);
         }
 
         $closingCost = 0;
 
         foreach ($tokens as $token) {
             $isTag = $token[0] === '<';
-            $tokBytes = $this->strategy->length($token, $enc);
+            $tokBytes = $strategyAction->length($token, $enc);
 
             if ($used >= $limit) {
                 break;
@@ -71,7 +84,7 @@ final class TruncateHtml implements TruncateInterface
 
 
                 if ($type === TypeTag::Open && !$self) {
-                    $tagCloseLen = $this->strategy->length(\sprintf("</%s>", $name), $enc);
+                    $tagCloseLen = $strategyAction->length(\sprintf("</%s>", $name), $enc);
 
                     if ($used + $tokBytes + $closingCost + $tagCloseLen > $limit) {
                         break;
@@ -86,7 +99,7 @@ final class TruncateHtml implements TruncateInterface
                 }
 
                 if ($type === TypeTag::Close) {
-                    $tagCloseLen = $this->strategy->length(\sprintf("</%s>", $name), $enc);
+                    $tagCloseLen = $strategyAction->length(\sprintf("</%s>", $name), $enc);
 
                     if ($used + $tokBytes + ($closingCost - $tagCloseLen) > $limit) {
                         break;
@@ -126,17 +139,17 @@ final class TruncateHtml implements TruncateInterface
                 continue;
             }
 
-            $cut = $this->strategy->cut($token, $avail, $enc);
+            $cut = $strategyAction->cut($token, $avail, $enc);
             if ($cut !== '') {
                 $out .= $cut;
-                $used += $this->strategy->length($cut, $enc);
+                $used += $strategyAction->length($cut, $enc);
             }
             break;
         }
 
         foreach (\array_reverse($openTags) as $name) {
             $closer = \sprintf("</%s>", $name);
-            $lenClose = $this->strategy->length($closer, $enc);
+            $lenClose = $strategyAction->length($closer, $enc);
 
             if ($used + $lenClose > $limit) {
                 break;
@@ -185,5 +198,12 @@ final class TruncateHtml implements TruncateInterface
         }
 
         return [TypeTag::Other, '', false];
+    }
+
+    private function addStrategy(TruncateStrategyInterface $strategy): self
+    {
+        $this->strategy[$strategy->key()->value] = $strategy;
+
+        return $this;
     }
 }

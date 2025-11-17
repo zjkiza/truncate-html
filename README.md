@@ -75,7 +75,7 @@ Truncate html by length chart:
 ```php
 
     use ZJKiza\TruncateHtml\TruncateHtml;
-    use ZJKiza\TruncateHtml\Strategy\ChartStrategy;
+    use ZJKiza\TruncateHtml\Strategy\StringStrategy;
     
     $html= '<div>...</div>'    
     $limit = 400; 
