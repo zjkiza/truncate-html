@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace ZJKiza\TruncateHtml;
 
-use ZJKiza\TruncateHtml\Contract\TruncateInterface;
+use ZJKiza\TruncateHtml\Contract\TruncateHtmlInterface;
 use ZJKiza\TruncateHtml\Contract\TruncateStrategyInterface;
 use ZJKiza\TruncateHtml\Enum\Strategy;
 use ZJKiza\TruncateHtml\Enum\TypeTag;
-use ZJKiza\TruncateHtml\Strategy\ByteStrategy;
-use ZJKiza\TruncateHtml\Strategy\StringStrategy;
+use ZJKiza\TruncateHtml\Strategy\BytesStrategy;
+use ZJKiza\TruncateHtml\Strategy\CharactersStrategy;
 
-final class TruncateHtml implements TruncateInterface
+final class TruncateHtml implements TruncateHtmlInterface
 {
     /**
      * @var string[]
@@ -33,8 +33,8 @@ final class TruncateHtml implements TruncateInterface
     ) {
 
         $this
-            ->addStrategy(new ByteStrategy())
-            ->addStrategy(new StringStrategy());
+            ->addStrategy(new BytesStrategy())
+            ->addStrategy(new CharactersStrategy());
 
         if (false === (bool)$voidTag) {
             return;

@@ -6,8 +6,8 @@ namespace ZJKiza\TruncateHtml\Tests\Functionality;
 
 use PHPUnit\Framework\TestCase;
 use ZJKiza\TruncateHtml\Enum\Strategy;
-use ZJKiza\TruncateHtml\Strategy\ByteStrategy;
-use ZJKiza\TruncateHtml\Strategy\StringStrategy;
+use ZJKiza\TruncateHtml\Strategy\BytesStrategy;
+use ZJKiza\TruncateHtml\Strategy\CharactersStrategy;
 use ZJKiza\TruncateHtml\TruncateHtml;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -50,7 +50,7 @@ final class TruncateHtmlTest extends TestCase
     public function testStringTruncate(int $limit, string $expected): void
     {
         $truncate = new TruncateHtml();
-        $result = $truncate->execute($this->getHtml(), Strategy::String, $limit);
+        $result = $truncate->execute($this->getHtml(), Strategy::Character, $limit);
 
         $this->assertLessThanOrEqual($limit, \strlen($result));
         $this->assertSame($expected, $result);

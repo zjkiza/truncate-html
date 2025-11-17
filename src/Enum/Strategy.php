@@ -7,5 +7,5 @@ namespace ZJKiza\TruncateHtml\Enum;
 enum Strategy: string
 {
     case Byte = 'byte';
-    case String = 'string';
+    case Character = 'character';
 }

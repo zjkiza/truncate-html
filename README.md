@@ -1,86 +1,134 @@
-# PHP Package: Truncate Html
+# PHP package: Truncate Html
 
-A flexible HTML truncation service that safely truncates HTML content without breaking the tag structure. Enable different ways of measuring length by bytes or by characters.
+A flexible PHP service to safely truncate HTML content **without breaking tag structure**. Provides multiple truncation strategies—by bytes or by characters—making it ideal for displaying safe previews, snippets or social meta content.
 
-# About the Package
+---
 
+**Flexible PHP service for safely shortening HTML content without breaking tag structure. It supports different truncation strategies: byte-wise or character-wise.**
+---
 
-# Installation
+## Features
+- ✔️ Preserves valid HTML – no broken or unclosed tags
+- ✔️ Supports truncating by bytes (for precise control, ex. for database or API)
+- ✔️ Supports truncating by characters (multibyte safe)
+- ✔️ Custom void tags
+- ✔️ Simple API, PSR-4 autoload compatible
+- ✔️ PHP 8.0+, mbstring required
 
-Add the package to your composer.json file:
-```
+## Installation
+
+Install via [Composer](https://getcomposer.org/):
+
+```bash
 composer require zjkiza/truncate-html
 ```
-If you're using the Composer autoloader, all necessary files will be automatically included.
 
-# Working with the Package
+> You need PHP 8.0+ and ext-mbstring enabled.
 
-## Usage Without a Framework 
+---
 
-## Usage with a Framework
+## Basic Usage
 
-If you're using a PHP framework, you can integrate this package through dependency injection. 
+Truncate HTML to a byte or character limit, safely:
 
-1. Register the Interface and Implementation:
-   -
-   -
+```php
+use ZJKiza\TruncateHtml\TruncateHtml;
+use ZJKiza\TruncateHtml\Enum\Strategy;
 
-### Example in Symfony
+$html = '<div><p>Some rich <b>HTML</b> ...</p></div>';
 
-- Service registration in services.yaml:
-  ```yaml
-    services:
+$truncate = new TruncateHtml();
 
-    ```
-- Usage in a code:
-    ```php
+// --- Byte limit (precise control, for APIs/db):
+$resultByte = $truncate->execute($html, Strategy::Byte, 100);
 
-   ```
-### Example in Laravel
+// --- Character limit (supports multibyte chars!):
+$resultChar = $truncate->execute($html, Strategy::Character, 80);
+```
 
-- Add the binding in a service provider, such as `AppServiceProvider`
+After truncation, the string remains a valid HTML fragment.
 
-   ```php
+---
 
-   ```
+### Output Examples
 
-- Usage in a code:
+For byte/char limits, HTML tags remain valid:
 
-   ```php
+- Input:
+  ```html
+  <div><p>Lorem <b>ipsum</b> ...</p></div>
+  ```
+- Truncated output (limit adjusted):
+  ```html
+  <div><p>Lorem <b>ipsum</b> ...</p></div>
+  ```
+- Even if the cut is inside a tag, all tags are properly closed!
 
-   ```
+---
 
-# Package Benefits
+## Truncation Strategies (Strategije)
+- **Strategy::Byte**: Cuts by bytes. Use when you need strict byte limits (DB, APIs, etc).
+- **Strategy::Character**: Cuts by characters using mbstring (multi-byte safe, e.g., for Unicode strings).
 
+**Default encoding is UTF-8**, but can be overridden.
 
-# Example :
+## Usage in Frameworks / (example: Laravel, Symfony)
 
-Truncate html by length byte:
+> Register TruncateHtml as a service for injection.
+
+### Symfony (services.yaml)
+```yaml
+services:
+  ZJKiza\TruncateHtml\Contract\TruncateHtmlInterface:
+      class: ZJKiza\TruncateHtml\TruncateHtml
+```
+
+Then simply inject as needed in your services/controllers.
+
+### Laravel (in AppServiceProvider)
 
 ```php
 
-    use ZJKiza\TruncateHtml\TruncateHtml;
-    use ZJKiza\TruncateHtml\Strategy\ByteStrategy;
+use ZJKiza\TruncateHtml\Contract\TruncateHtmlInterface;
+use ZJKiza\TruncateHtml\TruncateHtml;
 
-    $html= '<div>...</div>'    
-    $limit = 400; 
-    
-    $truncateService = new TruncateHtml(new ByteStrategy());
-    $truncatedHtml = $truncate->execute($html, $limit);
-
+public function register()
+{
+        $this->app->bind(TruncateHtmlInterface::class, function () {
+            return TruncateHtml::create();
+}
 ```
+And type-hint `TruncateHtmlInterface` in your controllers/services.
 
-Truncate html by length chart:
+---
 
+## Advanced: Custom void/self-closing tags
+If you need to support additional self-closing/void tags, pass them as an array when constructing:
 ```php
-
-    use ZJKiza\TruncateHtml\TruncateHtml;
-    use ZJKiza\TruncateHtml\Strategy\StringStrategy;
-    
-    $html= '<div>...</div>'    
-    $limit = 400; 
-
-    $truncateService = new TruncateHtml(new CharStrategy());
-    $truncatedHtml = $truncate->execute($html, $limit);
-
+$truncate = new TruncateHtml(['customtag', ... ]);
 ```
+
+## Testing
+
+To run tests:
+```bash
+composer install
+vendor/bin/phpunit
+```
+
+---
+
+## License
+MIT License (c) 2025 Zoran Jankovic
+
+---
+## Author & Contact
+- Zoran Jankovic
+
+## Contributions
+Pull requests and suggestions are welcome! See `tests/Functionality/TruncateHtmlTest.php` for examples.
+
+---
+
+## Changelog
+See [CHANGELOG.md](./CHANGELOG.md)
