@@ -1,80 +1,56 @@
 FROM php:8.4-cli
 
-RUN apt-get update --fix-missing
-RUN apt-get update && apt-get install -y \
+ARG SYSTEM_TIMEZONE=UTC
+ARG APP_ENV=dev
+ARG PHP_XDEBUG_ENABLE=1
+ARG PHP_XDEBUG_MODE=debug
+ARG PHP_XDEBUG_REMOTE_PORT=9003
+ARG PHP_XDEBUG_REMOTE_ADDRESS=host.docker.internal
+ARG PHP_XDEBUG_IDEKEY=PHPSTORM
+ARG PHP_IDE_CONFIG="serverName=localhost"
+
+ENV TZ=${SYSTEM_TIMEZONE} \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_HOME=/composer \
+    PATH=/composer/vendor/bin:$PATH \
+    PHP_XDEBUG_ENABLE=${PHP_XDEBUG_ENABLE} \
+    PHP_XDEBUG_MODE=${PHP_XDEBUG_MODE} \
+    PHP_XDEBUG_REMOTE_PORT=${PHP_XDEBUG_REMOTE_PORT}\
+    PHP_XDEBUG_REMOTE_ADDRESS=${PHP_XDEBUG_REMOTE_ADDRESS} \
+    PHP_XDEBUG_IDEKEY=${PHP_XDEBUG_IDEKEY} \
+    PHP_IDE_CONFIG=${PHP_IDE_CONFIG} \
+    SYSTEM_TIMEZONE=${SYSTEM_TIMEZONE}
+
+RUN apt-get update --fix-missing && apt-get update && apt-get install -y \
     git \
     zip \
     nano \
     gettext \
     openssl \
-    openssh-client
+    openssh-client \
+     && rm -rf /var/lib/apt/lists/*
 
 RUN pecl install xdebug
 
 RUN docker-php-ext-install pcntl
 
-#   Setup Composer
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-WORKDIR /tmp
-
-ENV COMPOSER_HOME /composer
-
-# Add global binary directory to PATH and make sure to re-export it
-ENV PATH /composer/vendor/bin:$PATH
-
-# Allow Composer to be run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
-
-# Setup the Composer installer
-RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-    && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
-    && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }"
-
-RUN php /tmp/composer-setup.php
-
-RUN mv /tmp/composer.phar /usr/local/bin/composer.phar && \
-    ln -s /usr/local/bin/composer.phar /usr/local/bin/composer && \
-    chmod +x /usr/local/bin/composer
-
-#  Configure
-
-ARG SYSTEM_TIMEZONE=UTC
-
-RUN ln -snf /usr/share/zoneinfo/${SYSTEM_TIMEZONE} /etc/localtime && echo ${SYSTEM_TIMEZONE} > /etc/timezone
-ENV TZ="${SYSTEM_TIMEZONE}"
-
-ARG APP_ENV=dev
-ARG PHP_XDEBUG_ENABLE=1
-ARG PHP_XDEBUG_MODE=debug
-ARG PHP_XDEBUG_REMOTE_PORT=9000
-ARG PHP_XDEBUG_REMOTE_ADDRESS=host.docker.internal
-ARG PHP_XDEBUG_IDEKEY=PHPSTORM
-ARG PHP_IDE_CONFIG="serverName=localhost"
-
-ENV PHP_XDEBUG_ENABLE=${PHP_XDEBUG_ENABLE}
-ENV PHP_XDEBUG_MODE=${PHP_XDEBUG_MODE}
-ENV PHP_XDEBUG_REMOTE_PORT=${PHP_XDEBUG_REMOTE_PORT}
-ENV PHP_XDEBUG_REMOTE_ADDRESS=${PHP_XDEBUG_REMOTE_ADDRESS}
-ENV PHP_XDEBUG_IDEKEY=${PHP_XDEBUG_IDEKEY}
-ENV PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
-ENV SYSTEM_TIMEZONE=${SYSTEM_TIMEZONE}
-
-ADD docker/php/conf /tmp
-RUN chmod +x /tmp/configure.sh
-RUN /tmp/configure.sh
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+ && echo ${TZ} > /etc/timezone
 
 #   Add GitHub to known hosts
+RUN mkdir -p /root/.ssh \
+ && chmod 700 /root/.ssh \
+ && ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-RUN cd; mkdir .ssh; chmod 0700 .ssh; touch /root/.ssh/known_hosts
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
-
+COPY docker/php/conf /tmp
+RUN chmod +x /tmp/configure.sh && /tmp/configure.sh && rm -rf /tmp/*
 
 WORKDIR /www
 COPY --chown=${LOCAL_USER} . /www
-RUN git config --global --add safe.directory /www
 
 #   Holds a raised container
-
 COPY docker/php/cmd.sh /usr/local/bin/cmd.sh
 RUN chmod +x /usr/local/bin/cmd.sh
 
