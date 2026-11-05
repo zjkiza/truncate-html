@@ -6,6 +6,9 @@ services:
             context: .
             dockerfile: ./docker/php/Dockerfile
             args:
+                PHP_VERSION:                ${PHP_VERSION:-8.4}
+                UID:                        ${HOST_UID:-1000}
+                GID:                        ${HOST_GID:-1000}
                 SYSTEM_TIMEZONE:            ${SYSTEM_TIMEZONE}
                 PHP_XDEBUG_ENABLE:          ${PHP_XDEBUG_ENABLE}
                 PHP_XDEBUG_MODE:            ${PHP_XDEBUG_MODE}
