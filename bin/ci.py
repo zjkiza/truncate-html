@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import time
 from rich.console import Console
 from rich.markdown import Markdown
@@ -15,6 +16,8 @@ from config import container_php, waiting_db_connection, commands, container_wor
 def run(verbose: bool) -> None:
     start = time.time()
 
+    Console().print('[blue]PHP version: {}[/blue]'.format(os.environ.get('PHP_VERSION', 'default (8.4)')), width=120)
+
     docker_manager = create_docker_manager(
         verbose=verbose,
         waiting_db=waiting_db_connection,
@@ -28,7 +31,7 @@ def run(verbose: bool) -> None:
         Console().print('[blue]Running `{}`...[/blue]'.format(command_name), width=120)
 
         output_process = subprocess.run(
-            'docker exec -w {} -it {} sh -c "{}"'.format(container_work_dir, container_php, command),
+            'docker exec -w {} {} sh -c "{}"'.format(container_work_dir, container_php, command),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

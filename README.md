@@ -1,5 +1,13 @@
 # PHP package: Truncate Html
 
+[![CI](https://github.com/zjkiza/truncate-html/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zjkiza/truncate-html/actions/workflows/ci.yml)
+[![Latest version](https://img.shields.io/packagist/v/zjkiza/truncate-html)](https://packagist.org/packages/zjkiza/truncate-html)
+[![PHP version](https://img.shields.io/packagist/dependency-v/zjkiza/truncate-html/php)](https://packagist.org/packages/zjkiza/truncate-html)
+[![Downloads](https://img.shields.io/packagist/dt/zjkiza/truncate-html)](https://packagist.org/packages/zjkiza/truncate-html/stats)
+[![License](https://img.shields.io/packagist/l/zjkiza/truncate-html)](LICENSE)
+![PHPStan level max](https://img.shields.io/badge/PHPStan-level%20max-brightgreen)
+![Psalm level 2](https://img.shields.io/badge/Psalm-level%202-brightgreen)
+
 A flexible PHP service to safely truncate HTML content **without breaking tag structure**. Provides multiple truncation strategies—by bytes or by characters—making it ideal for displaying safe previews, snippets or social meta content.
 
 ---
@@ -13,7 +21,7 @@ A flexible PHP service to safely truncate HTML content **without breaking tag st
 - ✔️ Supports truncating by characters (multibyte safe)
 - ✔️ Custom void tags
 - ✔️ Simple API, PSR-4 autoload compatible
-- ✔️ PHP 8.1+, mbstring required
+- ✔️ PHP 8.1 – 8.5, mbstring required
 
 ## Installation
 
@@ -23,7 +31,7 @@ Install via [Composer](https://getcomposer.org/):
 composer require zjkiza/truncate-html
 ```
 
-> You need PHP 8.1+ and ext-mbstring enabled.
+> You need PHP 8.1 – 8.5 and ext-mbstring enabled.
 
 ---
 
@@ -110,11 +118,19 @@ $truncate = new TruncateHtml(['customtag', ... ]);
 
 ## Testing
 
-To run tests:
+Run the unit tests locally:
 ```bash
 composer install
 vendor/bin/phpunit
 ```
+
+The package is tested on PHP 8.1 – 8.5. The full CI pipeline (composer validate, composer-unused, PHPUnit, PHPStan,
+Psalm, Rector and PHP-CS-Fixer) runs inside Docker; pass the PHP version through the `PHP_VERSION` variable
+(requires Docker and Python 3 with `click`, `rich` and `python-dotenv`):
+```bash
+PHP_VERSION=8.3 bin/ci.py
+```
+When `PHP_VERSION` is omitted, PHP 8.4 is used. The same checks run on GitHub Actions for every supported PHP version.
 
 ---
 
